@@ -3,6 +3,7 @@ import ConnectMetamaskWalletButton from "./ConnectMetamaskWalletButton";
 import { useWeb3 } from "@/contexts/Web3Context";
 import { useWallet } from "@/contexts/WalletContext";
 import { isChainSupported } from "@/utils/isChainSupported";
+import CryptoAssets from "./CryptoAssets";
 
 const Main: FC = () => {
   const { web3, setCurrentProvider } = useWeb3();
@@ -21,7 +22,7 @@ const Main: FC = () => {
     return (
       <div>
         <p>Wallet is connected</p>
-        <p></p>
+        <CryptoAssets />
       </div>
     );
   }

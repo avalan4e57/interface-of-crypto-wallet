@@ -5,6 +5,6 @@ export enum SupportedWallets {
 export enum SupportedChains {
   Ethereum = 1,
   Goerli = 5,
-  BSC = 56,
+  tBSC = 97,
   NOT_SUPPORTED = -1,
 }
