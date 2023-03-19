@@ -29,14 +29,16 @@ export function useWeb3() {
 const Web3Provider: FC<PropsWithChildren> = ({ children }) => {
   const [web3, setWeb3] = useState<Web3>();
 
-  const setCurrentProvider = () => setWeb3(Web3.givenProvider);
+  const setCurrentProvider = () => setWeb3(new Web3(Web3.givenProvider));
 
   useEffect(() => {
     const setProviderIfWalletConnected = async () => {
       if (Web3.givenProvider) {
         const provider = new Web3(Web3.givenProvider);
         const accounts = await provider?.eth.getAccounts();
-        if (accounts && accounts.length > 0) {
+        const { isMetaMask } = Web3.givenProvider;
+        const isSupportedWallet = isMetaMask;
+        if (isSupportedWallet && accounts && accounts.length > 0) {
           setWeb3(provider);
         }
       }

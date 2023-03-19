@@ -1,3 +1,4 @@
+import WalletProvider from "@/contexts/WalletContext";
 import Web3Provider from "@/contexts/Web3Context";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
@@ -13,7 +14,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <main className={roboto.className}>
       <Web3Provider>
-        <Component {...pageProps} />
+        <WalletProvider>
+          <Component {...pageProps} />
+        </WalletProvider>
       </Web3Provider>
     </main>
   );
