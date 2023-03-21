@@ -35,6 +35,7 @@ const TokenTransfer: FC<TokenTransferProps> = ({ assets, refetchToken }) => {
     setSnackbarOpen(true);
   }, []);
 
+  // @TODO: Hide in hook. Contract in token. No web3 outside token contract instance
   const transferTokens = async (
     token: CryptoAsset,
     data: TokenTransferFormData
