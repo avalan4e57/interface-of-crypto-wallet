@@ -1,5 +1,5 @@
 import useERC20TokenUtils from "@/hooks/useERC20TokenUtils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CryptoAsset } from "@/types";
 import { useWallet } from "@/contexts/WalletContext";
 import defaultTokenContracts from "@/constants/defaultTokenContracts";
@@ -8,12 +8,33 @@ import InvalidContractAddressError from "@/errors/InvalidContractAddressError";
 import transformTokenInfoToCryptoAsset from "@/utils/transformTokenInfoIntoCryptoAsset";
 
 export function useCryptoAssets() {
-  const [assets, setAssets] = useState<any[]>([]);
+  const [assets, setAssets] = useState<CryptoAsset[]>([]);
   const [error, setError] = useState<unknown>();
 
   const { account } = useWallet();
-  const { getTokenInfo } = useERC20TokenUtils();
+  const { getTokenInfo, getTokenBalance } = useERC20TokenUtils();
   const { getNativeTokenInfo } = useNativeERC20TokenUtils();
+
+  const refetchToken = useCallback(
+    (tokenAddress: string) => {
+      const tokenAsset = assets.find((asset) => asset.address === tokenAddress);
+      if (tokenAsset) {
+        getTokenBalance(tokenAddress).then((balance) => {
+          setAssets(
+            assets.map((asset) =>
+              asset.address === tokenAddress
+                ? {
+                    ...asset,
+                    balance,
+                  }
+                : asset
+            )
+          );
+        });
+      }
+    },
+    [assets, getTokenBalance]
+  );
 
   useEffect(() => {
     let ignore = false;
@@ -79,5 +100,5 @@ export function useCryptoAssets() {
     console.log("assets", assets);
   }, [assets]);
 
-  return { assets, error };
+  return { assets, error, refetchToken };
 }

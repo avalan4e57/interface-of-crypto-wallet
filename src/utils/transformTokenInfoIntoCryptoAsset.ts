@@ -1,14 +1,24 @@
 import { TokenInfo, CryptoAsset } from "@/types";
-import getBalanceInReadableFormat from "./getBalanceInReadableFormat";
+import BigNumber from "bignumber.js";
 
 function transformTokenInfoToCryptoAsset(
   { balance, decimals, symbol }: TokenInfo,
   address: string
 ): CryptoAsset {
   return {
-    balance: getBalanceInReadableFormat(balance, decimals),
+    balance,
     symbol,
     address,
+    toBasicUnit: (value: string) => {
+      const basicUnit = new BigNumber(10).pow(new BigNumber(decimals));
+      const tokenUnits = basicUnit.toNumber() * parseFloat(value);
+      return tokenUnits.toString();
+    },
+    toMainUnit: (value: string) => {
+      const basicUnit = new BigNumber(10).pow(new BigNumber(decimals));
+      const tokenUnits = new BigNumber(value).div(basicUnit);
+      return tokenUnits.toFixed();
+    },
   };
 }
 
