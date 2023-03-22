@@ -1,6 +1,7 @@
 import Button from "@mui/material/Button";
 import { FC, useEffect, useState } from "react";
 import { connectMetaMaskWallet } from "@/utils/connectMetamaskWallet";
+import { Grid } from "@mui/material";
 
 type Props = {
   onConnectWallet: () => void;
@@ -22,14 +23,18 @@ const ConnectMetamaskWalletButton: FC<Props> = ({ onConnectWallet }) => {
     }
   }, [loading, onConnectWallet]);
   return (
-    <Button
-      variant="contained"
-      color="secondary"
-      onClick={() => setLoading(true)}
-      disabled={loading}
-    >
-      {loading ? `Connecting...` : `Connect Wallet`}
-    </Button>
+    <Grid container justifyContent="center">
+      <Grid item>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setLoading(true)}
+          disabled={loading}
+        >
+          {loading ? `Connecting...` : `Connect Wallet`}
+        </Button>
+      </Grid>
+    </Grid>
   );
 };
 

@@ -10,6 +10,7 @@ import transformTokenInfoToCryptoAsset from "@/utils/transformTokenInfoIntoCrypt
 export function useCryptoAssets() {
   const [assets, setAssets] = useState<CryptoAsset[]>([]);
   const [error, setError] = useState<unknown>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { account } = useWallet();
   const { getTokenInfo, getTokenBalance } = useERC20TokenUtils();
@@ -79,11 +80,14 @@ export function useCryptoAssets() {
     }
     async function fetchAssets() {
       try {
+        setLoading(true);
         const nativeTokenAsset = await getNativeTokenAsset();
         const tokenAssets = await getOtherTokenAssets();
         if (!ignore) setAssets([nativeTokenAsset, ...tokenAssets]);
       } catch (error) {
         setError(error);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -100,5 +104,5 @@ export function useCryptoAssets() {
     console.log("assets", assets);
   }, [assets]);
 
-  return { assets, error, refetchToken };
+  return { assets, error, refetchToken, loading };
 }

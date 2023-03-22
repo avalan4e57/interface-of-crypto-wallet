@@ -6,6 +6,12 @@ export type CryptoAsset = {
   toMainUnit: (value: string) => string;
 };
 
+export type CryptoAssetView = {
+  symbol: string;
+  balance: string;
+  address: string;
+};
+
 export type TokenInfo = {
   symbol: string;
   decimals: string;
