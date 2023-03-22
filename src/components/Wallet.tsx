@@ -8,7 +8,7 @@ import { Grid } from "@mui/material";
 import WalletUnsupportedNetwork from "./Wallet.UnsupportedNetwork";
 
 const Wallet: FC = () => {
-  const { assets, refetchToken, loading } = useCryptoAssets();
+  const { assets, refetchBalances, loading } = useCryptoAssets();
   const { networkId } = useWallet();
 
   if (networkId && !isChainSupported(networkId)) {
@@ -32,7 +32,7 @@ const Wallet: FC = () => {
       <Grid item xs={12} md={6}>
         <TokenTransfer
           assets={assets}
-          refetchToken={refetchToken}
+          refetchBalances={refetchBalances}
           loading={loading}
         />
       </Grid>

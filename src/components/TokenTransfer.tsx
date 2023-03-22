@@ -17,13 +17,13 @@ const StyledForm = styled("div")(({ theme }) => ({
 
 type TokenTransferProps = {
   assets: CryptoAsset[];
-  refetchToken: (tokenAddress: string) => void;
+  refetchBalances: () => void;
   loading: boolean;
 };
 
 const TokenTransfer: FC<TokenTransferProps> = ({
   assets,
-  refetchToken,
+  refetchBalances,
   loading,
 }) => {
   const { web3 } = useWeb3();
@@ -53,41 +53,33 @@ const TokenTransfer: FC<TokenTransferProps> = ({
     data: TokenTransferFormData
   ) => {
     const { amount, currency: tokenAddress, walletAddress } = data;
-
     if (web3 && account) {
-      if (tokenAddress === assets[0].address) {
-        try {
+      try {
+        setIsTransfering(true);
+        if (tokenAddress === assets[0].address) {
           const tx = await web3.eth.sendTransaction({
             from: account,
             to: walletAddress,
             value: +token.toBasicUnit(amount),
           });
           console.log("success", tx);
-          showSuccessSnackbar();
-        } catch (err) {
-          console.error(err);
-          showErrorSnackbar();
-        } finally {
-          refetchToken(tokenAddress);
-        }
-      } else {
-        const contractInstance = new web3.eth.Contract(
-          transferABI,
-          tokenAddress
-        );
-        try {
-          setIsTransfering(true);
-          await contractInstance.methods
+        } else {
+          const contractInstance = new web3.eth.Contract(
+            transferABI,
+            tokenAddress
+          );
+          const tx = await contractInstance.methods
             .transfer(walletAddress, token.toBasicUnit(amount))
             .send({ from: account });
-          showSuccessSnackbar();
-        } catch (err) {
-          console.error(err);
-          showErrorSnackbar();
-        } finally {
-          refetchToken(tokenAddress);
-          setIsTransfering(false);
+          console.log("success", tx);
         }
+        showSuccessSnackbar();
+      } catch (err) {
+        console.error(err);
+        showErrorSnackbar();
+      } finally {
+        refetchBalances();
+        setIsTransfering(false);
       }
     }
   };

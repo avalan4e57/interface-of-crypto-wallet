@@ -6,6 +6,7 @@ import defaultTokenContracts from "@/constants/defaultTokenContracts";
 import { useNativeERC20TokenUtils } from "@/hooks/useNativeERC20TokenUtils";
 import InvalidContractAddressError from "@/errors/InvalidContractAddressError";
 import transformTokenInfoToCryptoAsset from "@/utils/transformTokenInfoIntoCryptoAsset";
+import useRefetchBalances from "./useRefetchBalances";
 
 export function useCryptoAssets() {
   const [assets, setAssets] = useState<CryptoAsset[]>([]);
@@ -13,29 +14,12 @@ export function useCryptoAssets() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { account } = useWallet();
-  const { getTokenInfo, getTokenBalance } = useERC20TokenUtils();
+  const { getTokenInfo } = useERC20TokenUtils();
   const { getNativeTokenInfo } = useNativeERC20TokenUtils();
-
-  const refetchToken = useCallback(
-    (tokenAddress: string) => {
-      const tokenAsset = assets.find((asset) => asset.address === tokenAddress);
-      if (tokenAsset) {
-        getTokenBalance(tokenAddress).then((balance) => {
-          setAssets(
-            assets.map((asset) =>
-              asset.address === tokenAddress
-                ? {
-                    ...asset,
-                    balance,
-                  }
-                : asset
-            )
-          );
-        });
-      }
-    },
-    [assets, getTokenBalance]
-  );
+  const updateAssets = useCallback((assets: CryptoAsset[]) => {
+    setAssets(assets);
+  }, []);
+  const { startRefetchingBalances } = useRefetchBalances(assets, updateAssets);
 
   useEffect(() => {
     let ignore = false;
@@ -104,5 +88,5 @@ export function useCryptoAssets() {
     console.log("assets", assets);
   }, [assets]);
 
-  return { assets, error, refetchToken, loading };
+  return { assets, error, refetchBalances: startRefetchingBalances, loading };
 }
