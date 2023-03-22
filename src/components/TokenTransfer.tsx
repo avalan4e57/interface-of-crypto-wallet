@@ -30,6 +30,7 @@ const TokenTransfer: FC<TokenTransferProps> = ({
   const { account, networkId } = useWallet();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarType, setSnackbarType] = useState<"success" | "error">();
+  const [isTransfering, setIsTransfering] = useState(false);
 
   const closeSnackbar = useCallback(() => {
     setSnackbarOpen(false);
@@ -75,6 +76,7 @@ const TokenTransfer: FC<TokenTransferProps> = ({
           tokenAddress
         );
         try {
+          setIsTransfering(true);
           await contractInstance.methods
             .transfer(walletAddress, token.toBasicUnit(amount))
             .send({ from: account });
@@ -84,6 +86,7 @@ const TokenTransfer: FC<TokenTransferProps> = ({
           showErrorSnackbar();
         } finally {
           refetchToken(tokenAddress);
+          setIsTransfering(false);
         }
       }
     }
@@ -104,6 +107,7 @@ const TokenTransfer: FC<TokenTransferProps> = ({
           key={`${account}-${networkId}`}
           assets={assets}
           onSubmit={transferTokens}
+          isSubmitting={isTransfering}
         />
       </StyledForm>
       <TokenTransferSnackbar

@@ -16,11 +16,13 @@ import isAddress from "@/utils/isAddress";
 type TokenTransferFormProps = {
   assets: CryptoAsset[];
   onSubmit: (token: CryptoAsset, data: TokenTransferFormData) => Promise<void>;
+  isSubmitting: boolean;
 };
 
 const TokenTransferForm: FC<TokenTransferFormProps> = ({
   assets,
   onSubmit,
+  isSubmitting,
 }) => {
   const {
     register,
@@ -103,8 +105,13 @@ const TokenTransferForm: FC<TokenTransferFormProps> = ({
         <FormHelperText error>{errors.amount.message}</FormHelperText>
       )}
 
-      <Button variant="contained" color="primary" type="submit">
-        Send crypto
+      <Button
+        variant="contained"
+        color="primary"
+        type="submit"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Sending..." : `Send crypto`}
       </Button>
     </form>
   );
