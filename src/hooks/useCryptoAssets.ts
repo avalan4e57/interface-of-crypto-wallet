@@ -1,21 +1,18 @@
-import useERC20TokenUtils from "@/hooks/useERC20TokenUtils";
 import { useCallback, useEffect, useState } from "react";
 import { CryptoAsset } from "@/types";
 import { useWallet } from "@/contexts/WalletContext";
-import defaultTokenContracts from "@/constants/defaultTokenContracts";
-import { useNativeERC20TokenUtils } from "@/hooks/useNativeERC20TokenUtils";
+import defaultTokenAddresses from "@/constants/defaultTokenContracts";
 import InvalidContractAddressError from "@/errors/InvalidContractAddressError";
-import transformTokenInfoToCryptoAsset from "@/utils/transformTokenInfoIntoCryptoAsset";
 import useRefetchBalances from "./useRefetchBalances";
+import useERC20Token from "./useERC20Token";
 
 export function useCryptoAssets() {
   const [assets, setAssets] = useState<CryptoAsset[]>([]);
   const [error, setError] = useState<unknown>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { account } = useWallet();
-  const { getTokenInfo } = useERC20TokenUtils();
-  const { getNativeTokenInfo } = useNativeERC20TokenUtils();
+  const { account, networkId } = useWallet();
+  const { getERC20TokenInfo } = useERC20Token();
   const updateAssets = useCallback((assets: CryptoAsset[]) => {
     setAssets(assets);
   }, []);
@@ -24,27 +21,17 @@ export function useCryptoAssets() {
   useEffect(() => {
     let ignore = false;
 
-    async function getNativeTokenAsset() {
+    async function getTokenAssets() {
       if (!account) throw new Error("No account provided");
-
-      const nativeTokenInfo = await getNativeTokenInfo();
-      const nativeTokenAsset = transformTokenInfoToCryptoAsset(
-        nativeTokenInfo,
-        account
-      );
-      return nativeTokenAsset;
-    }
-
-    async function getOtherTokenAssets() {
-      const tokensInfoPromises = await defaultTokenContracts.reduce<
+      if (!networkId) throw new Error("No networkId provided");
+      const tokenAddresses = [account, ...defaultTokenAddresses];
+      const tokenInfoPromises = await tokenAddresses.reduce<
         Promise<CryptoAsset[]>
       >(async (accumulator, address) => {
-        if (!account) throw new Error("No account provided");
-
-        const current = await accumulator;
+        const currentAccumulator = await accumulator;
         try {
-          const tokenInfo = await getTokenInfo(address);
-          current.push(transformTokenInfoToCryptoAsset(tokenInfo, address));
+          const tokenInfo = await getERC20TokenInfo(account, address);
+          currentAccumulator.push(tokenInfo);
         } catch (error) {
           if (error instanceof InvalidContractAddressError) {
             console.warn("Invalid contract address", error.contractAddress);
@@ -52,22 +39,22 @@ export function useCryptoAssets() {
             console.log("error", error);
           }
         } finally {
-          return current;
+          return currentAccumulator;
         }
       }, Promise.resolve([]));
 
       try {
-        return await Promise.all(tokensInfoPromises);
+        return await Promise.all(tokenInfoPromises);
       } catch (error) {
         throw error;
       }
     }
+
     async function fetchAssets() {
       try {
         setLoading(true);
-        const nativeTokenAsset = await getNativeTokenAsset();
-        const tokenAssets = await getOtherTokenAssets();
-        if (!ignore) setAssets([nativeTokenAsset, ...tokenAssets]);
+        const tokenAssets = await getTokenAssets();
+        if (!ignore) setAssets(tokenAssets);
       } catch (error) {
         setError(error);
       } finally {
@@ -82,7 +69,7 @@ export function useCryptoAssets() {
     return () => {
       ignore = true;
     };
-  }, [account, getNativeTokenInfo, getTokenInfo]);
+  }, [account, getERC20TokenInfo, networkId]);
 
   useEffect(() => {
     console.log("assets", assets);

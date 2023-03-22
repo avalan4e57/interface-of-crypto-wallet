@@ -1,7 +1,6 @@
 import { CryptoAsset } from "@/types";
 import { useState, useEffect, useCallback } from "react";
-import useERC20TokenUtils from "./useERC20TokenUtils";
-import { useNativeERC20TokenUtils } from "./useNativeERC20TokenUtils";
+import useERC20Token from "./useERC20Token";
 
 function useRefetchBalances(
   assets: CryptoAsset[],
@@ -9,8 +8,7 @@ function useRefetchBalances(
 ) {
   const [isRefetchingBalancesStarted, setIsRefetchingBalancesStarted] =
     useState<boolean>(false);
-  const { getTokenBalance } = useERC20TokenUtils();
-  const { getNativeTokenBalance } = useNativeERC20TokenUtils();
+  const { getTokenBalance } = useERC20Token();
 
   const startRefetchingBalances = useCallback(
     () => setIsRefetchingBalancesStarted(true),
@@ -21,19 +19,12 @@ function useRefetchBalances(
     let ignore = false;
 
     async function refetchBalances() {
-      const [nativeTokenAsset, ...tokenAssets] = assets;
-      const nativeTokenPromise = getNativeTokenBalance().then((balance) => {
-        return { ...nativeTokenAsset, balance };
-      });
-      const tokenAssetsPromises = tokenAssets.map(async (asset) => {
-        const balance = await getTokenBalance(asset.address);
+      const tokenAssetsPromises = assets.map(async (asset) => {
+        const balance = await getTokenBalance(asset);
         return { ...asset, balance };
       });
       try {
-        const updatedAssets = await Promise.all([
-          nativeTokenPromise,
-          ...tokenAssetsPromises,
-        ]);
+        const updatedAssets = await Promise.all(tokenAssetsPromises);
         if (!ignore) {
           updateAssets(updatedAssets);
         }
@@ -52,13 +43,7 @@ function useRefetchBalances(
     return () => {
       ignore = true;
     };
-  }, [
-    assets,
-    getNativeTokenBalance,
-    getTokenBalance,
-    isRefetchingBalancesStarted,
-    updateAssets,
-  ]);
+  }, [assets, getTokenBalance, isRefetchingBalancesStarted, updateAssets]);
 
   return { startRefetchingBalances };
 }
