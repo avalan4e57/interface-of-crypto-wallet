@@ -96,7 +96,9 @@ function useERC20Token() {
       try {
         if (token.isNativeToken) {
           const currentChainId = await web3.eth.getChainId();
-          return supportedChainSymbols[currentChainId as SupportedChains];
+          return currentChainId in SupportedChains
+            ? supportedChainSymbols[currentChainId as SupportedChains]
+            : supportedChainSymbols[SupportedChains.NOT_SUPPORTED];
         } else if (!token.contract) {
           throw new Error("No contract provided");
         } else {
