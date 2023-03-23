@@ -7,10 +7,9 @@ import { supportedChainSymbols } from "@/constants/supportedChainsMappings";
 import { useWeb3 } from "@/contexts/Web3Context";
 import { SupportedChains } from "@/enums";
 import InvalidContractAddressError from "@/errors/InvalidContractAddressError";
-import { TransferTokensPayload } from "@/types";
+import { CryptoAssetMetadata, TransferTokensPayload } from "@/types";
 import { toBasicUnit, toMainUnit } from "@/utils/transformTokenValue";
 import { useCallback } from "react";
-import { Contract } from "web3-eth-contract";
 
 const AbiERC20: any[] = [
   ...balanceOfABI,
@@ -19,13 +18,6 @@ const AbiERC20: any[] = [
   ...totalSupplyABI,
   ...transferABI,
 ];
-
-type CryptoAssetMetadata = {
-  contract: Contract | undefined;
-  address: string;
-  account: string;
-  isNativeToken: boolean;
-};
 
 function useERC20Token() {
   const { web3 } = useWeb3();

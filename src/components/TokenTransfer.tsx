@@ -1,4 +1,3 @@
-import transferABI from "@/abi/transferABI";
 import { useWallet } from "@/contexts/WalletContext";
 import { useWeb3 } from "@/contexts/Web3Context";
 import { CryptoAsset } from "@/types";
@@ -37,16 +36,6 @@ const TokenTransfer: FC<TokenTransferProps> = ({
     setSnackbarType(undefined);
   }, []);
 
-  const showSuccessSnackbar = useCallback(() => {
-    setSnackbarType("success");
-    setSnackbarOpen(true);
-  }, []);
-
-  const showErrorSnackbar = useCallback(() => {
-    setSnackbarType("error");
-    setSnackbarOpen(true);
-  }, []);
-
   const transferTokens = async (
     token: CryptoAsset,
     data: TokenTransferFormData
@@ -60,10 +49,12 @@ const TokenTransfer: FC<TokenTransferProps> = ({
           value: amount,
         });
         console.log("success", tx);
-        showSuccessSnackbar();
+        setSnackbarType("success");
+        setSnackbarOpen(true);
       } catch (err) {
         console.error(err);
-        showErrorSnackbar();
+        setSnackbarType("error");
+        setSnackbarOpen(true);
       } finally {
         refetchBalances();
         setIsTransfering(false);
