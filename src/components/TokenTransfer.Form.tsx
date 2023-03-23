@@ -43,7 +43,8 @@ const TokenTransferForm: FC<TokenTransferFormProps> = ({
     if (!token) return;
     const { amount } = data;
     const transactionAmount = new BigNumber(token.toBasicUnit(amount));
-    const totalBalance = new BigNumber(token.toBasicUnit(token.balance));
+    const totalBalance = new BigNumber(token.balance);
+
     if (totalBalance.isLessThan(transactionAmount)) {
       setError("amount", {
         type: "manual",
@@ -64,6 +65,7 @@ const TokenTransferForm: FC<TokenTransferFormProps> = ({
           inputProps={{
             name: "currency",
             id: "currency-select",
+            "aria-label": "currency-select",
           }}
         >
           {assets.map((asset) => (
@@ -83,6 +85,10 @@ const TokenTransferForm: FC<TokenTransferFormProps> = ({
           validate: (value) => isAddress(value) || "Invalid address",
         })}
         error={!!errors.walletAddress}
+        inputProps={{
+          "aria-required": "true",
+          "aria-label": "Receiver Wallet Address",
+        }}
       />
       {errors.walletAddress && (
         <FormHelperText error>{errors.walletAddress.message}</FormHelperText>
@@ -100,6 +106,10 @@ const TokenTransferForm: FC<TokenTransferFormProps> = ({
           },
         })}
         error={!!errors.amount}
+        inlist={{
+          "aria-label": "Amount",
+          "aria-required": "true",
+        }}
       />
       {errors.amount && (
         <FormHelperText error>{errors.amount.message}</FormHelperText>
@@ -110,8 +120,9 @@ const TokenTransferForm: FC<TokenTransferFormProps> = ({
         color="primary"
         type="submit"
         disabled={isSubmitting}
+        aria-label="Send crypto"
       >
-        {isSubmitting ? "Sending..." : `Send crypto`}
+        {isSubmitting ? "Sending..." : "Send crypto"}
       </Button>
     </form>
   );

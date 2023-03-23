@@ -61,7 +61,7 @@ const CryptoNewsCard: FC<CryptoNewsCardProps> = ({ newsItem }) => {
         <CardTitle>{newsItem.title}</CardTitle>
         <CardDescription>{newsItem.description}</CardDescription>
         <ImageContainer>
-          <ImageStyled src={newsItem.urlToImage} alt="news" />
+          <ImageStyled src={newsItem.urlToImage} alt="news-image" />
         </ImageContainer>
       </CardContainer>
     </a>

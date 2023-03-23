@@ -32,7 +32,7 @@ const CryptoAssetsTable: FC<CryptoAssetsTableProps> = ({
           width: "100%",
         }}
       >
-        <TableHead>
+        <TableHead aria-label="crypto-assets-table-header">
           <TableRow>
             <StyledTableHeadCell>Symbol</StyledTableHeadCell>
             <StyledTableHeadCell>Balance</StyledTableHeadCell>
@@ -41,7 +41,7 @@ const CryptoAssetsTable: FC<CryptoAssetsTableProps> = ({
 
         <TableBody>
           {(cryptoAssets.length === 0 || loading) && (
-            <TableRow>
+            <TableRow aria-label="skeleton-row">
               <TableCell>
                 <Skeleton />
               </TableCell>
