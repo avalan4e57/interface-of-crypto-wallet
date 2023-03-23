@@ -1,26 +1,28 @@
 import React, { useState, useEffect, FC } from "react";
 import CryptoNewsCard from "./CryptoNews.Card";
 import { NewsItem } from "./CryptoNews.types";
-import { domains } from "@/constants/cryptoNews";
 import { Grid } from "@mui/material";
-
-const pageSize = 6;
 
 export const CryptoNews: FC = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
 
   useEffect(() => {
+    let ignore = false;
     const fetchNews = async () => {
-      const response = await fetch(
-        `https://newsapi.org/v2/everything?q=cryptocurrency&domains=${domains.join(
-          ","
-        )}&pageSize=${pageSize}&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_KEY}`
-      );
-      const data = await response.json();
-      console.log("data", data);
-      setNews(data.articles);
+      try {
+        const response = await fetch("/api/news").then((res) => res.json());
+        if (!ignore) {
+          setNews(response.news);
+        }
+      } catch (error) {
+        console.log(error);
+        setNews([]);
+      }
     };
     fetchNews();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return (
